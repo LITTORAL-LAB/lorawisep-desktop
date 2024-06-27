@@ -4,20 +4,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  FormMessage
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "../ui/textarea"
+  SelectValue
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '../ui/textarea'
 
 export function ProjectConfigForm() {
-
   return (
     <>
       <FormField
@@ -26,7 +25,11 @@ export function ProjectConfigForm() {
           <FormItem>
             <FormLabel>Simulation Name</FormLabel>
             <FormControl>
-              <Input placeholder="Enter the simulation name" onChange={field.onChange} defaultValue={field.value} />
+              <Input
+                placeholder="Enter the simulation name"
+                onChange={field.onChange}
+                defaultValue={field.value}
+              />
             </FormControl>
             <FormDescription>
               Enter a unique name for your simulation to identify it easily in future references.
@@ -41,7 +44,11 @@ export function ProjectConfigForm() {
           <FormItem>
             <FormLabel>Simulation Description</FormLabel>
             <FormControl>
-              <Textarea placeholder="Write a brief description of the simulation" onChange={field.onChange} defaultValue={field.value} />
+              <Textarea
+                placeholder="Write a brief description of the simulation"
+                onChange={field.onChange}
+                defaultValue={field.value}
+              />
             </FormControl>
             <FormDescription>
               Provide a short description of what your simulation will analyze.

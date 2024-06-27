@@ -1,17 +1,23 @@
 /* In your main CSS or a specific Leaflet CSS file */
-.leaflet-control { z-index: 0 !important; }
-.leaflet-pane { z-index: 0 !important; }
-.leaflet-top, .leaflet-bottom { z-index: 0 !important; }
+.leaflet-control {
+  z-index: 0 !important;
+}
+.leaflet-pane {
+  z-index: 0 !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0 !important;
+}
 
 .icon-red {
-    filter: hue-rotate(0deg) saturate(1) brightness(1);
+  filter: hue-rotate(0deg) saturate(1) brightness(1);
 }
 
 .icon-blue {
-    filter: hue-rotate(200deg) saturate(1) brightness(1);
+  filter: hue-rotate(200deg) saturate(1) brightness(1);
 }
 
 .icon-green {
-    filter: hue-rotate(90deg) saturate(1) brightness(1);
+  filter: hue-rotate(90deg) saturate(1) brightness(1);
 }
-

@@ -1,6 +1,6 @@
 import { ParamsSimulatePage } from './pages/simulation/ParamsSimulatePage'
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/toaster'
 
 function App() {
   return (

@@ -1,73 +1,75 @@
 // MainLayout.tsx
-import { useState, useEffect } from 'react';
-import iconB from '@/assets/iot_device-black.png';
-import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import L from 'leaflet';
-import {
-  Trash2,
-  SaveAll,
-  Search,
-  Expand
-} from 'lucide-react';
+import { useState, useEffect } from 'react'
+import iconB from '@/assets/iot_device-black.png'
+import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+import L from 'leaflet'
+import { Trash2, SaveAll, Search, Expand } from 'lucide-react'
 import './style.css'
-import { SetViewOnClick, AreaSelector, orderCoordinates, addDevicesInArea } from './utils';
-import { ICoords } from '@/types';
-import { toast } from '../ui/use-toast';
+import { SetViewOnClick, AreaSelector, orderCoordinates, addDevicesInArea } from './utils'
+import { ICoords } from '@/types'
+import { toast } from '../ui/use-toast'
 
 interface IMapLayoutProps {
-  setFullScreen: (fullScreen: boolean) => void;
-  fullScreen: boolean;
-  onSave?: (devices: ICoords[]) => void;
-  onDelete?: () => void;
+  setFullScreen: (fullScreen: boolean) => void
+  fullScreen: boolean
+  onSave?: (devices: ICoords[]) => void
+  onDelete?: () => void
 }
-export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLayoutProps) => {
-  const [, setCurrentPosition] = useState<[number, number]>(); // Coordenadas padrão
-  const [center, setCenter] = useState<ICoords>({ lat: -5.0589993793432955, lng: -42.80016879851992 });
+export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete }: IMapLayoutProps) => {
+  const [, setCurrentPosition] = useState<[number, number]>() // Coordenadas padrão
+  const [center, setCenter] = useState<ICoords>({
+    lat: -5.0589993793432955,
+    lng: -42.80016879851992
+  })
   // {lat: -5.0589993793432955, lng: -42.80016879851992}
-  const [locationInput, setLocationInput] = useState('');
-  const [devices, setDevices] = useState<ICoords[]>([]);
-  const [selectMode, setSelectMode] = useState(false);
+  const [locationInput, setLocationInput] = useState('')
+  const [devices, setDevices] = useState<ICoords[]>([])
+  const [selectMode, setSelectMode] = useState(false)
   const [area, setArea] = useState<ICoords[]>([])
-  const [devicesCount, setDevicesCount] = useState('0');
+  const [devicesCount, setDevicesCount] = useState('0')
 
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCurrentPosition([position.coords.latitude, position.coords.longitude]);
-        setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
-      }, (error) => {
-        console.error("Error fetching location", error);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition([position.coords.latitude, position.coords.longitude])
+          setCenter({ lat: position.coords.latitude, lng: position.coords.longitude })
+        },
+        (error) => {
+          console.error('Error fetching location', error)
+        }
+      )
     }
-  }, []);
+  }, [])
 
   const handleSearch = async () => {
-    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationInput}`);
-    const data = await response.json();
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${locationInput}`
+    )
+    const data = await response.json()
     if (data[0]) {
-      const newCenter = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-      setCenter(newCenter);
-      alert(newCenter.lat + ' ' + newCenter.lng);
+      const newCenter = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
+      setCenter(newCenter)
+      alert(newCenter.lat + ' ' + newCenter.lng)
     } else {
-      alert('Location not found');
+      alert('Location not found')
     }
-  };
+  }
 
   const MapEffect = () => {
-    const map = useMap(); // useMap agora está sendo chamado dentro de um componente filho de MapContainer
+    const map = useMap() // useMap agora está sendo chamado dentro de um componente filho de MapContainer
 
     useEffect(() => {
       if (fullScreen) {
-        map.invalidateSize();
+        map.invalidateSize()
       }
-    }, [fullScreen, map]);
+    }, [fullScreen, map])
 
-    return null; // Esse componente não renderiza nada visível
-  };
-
+    return null // Esse componente não renderiza nada visível
+  }
 
   return (
     <>
@@ -76,7 +78,7 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
           type="text"
           className="flex-1 p-2 border border-gray-300 rounded"
           value={locationInput}
-          onChange={e => setLocationInput(e.target.value)}
+          onChange={(e) => setLocationInput(e.target.value)}
           placeholder="Search for locations"
         />
         <Button
@@ -92,10 +94,10 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
           {selectMode ? 'Stop Selecting' : 'Select Area'}
         </Button>
         <Input
-          type='number'
+          type="number"
           className="flex-1 p-2 border border-gray-300 rounded"
           value={devicesCount}
-          onChange={e => setDevicesCount(e.target.value)}
+          onChange={(e) => setDevicesCount(e.target.value)}
           placeholder="Number of devices"
         />
         <Button
@@ -110,14 +112,14 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
             toast({
               className: 'bg-green-700 text-white',
               description: (
-                <div className=''>
+                <div className="">
                   <p>Devices saved successfully</p>
                   <p>{devices.length} devices saved</p>
                 </div>
               ),
-              title: 'Success',
-            });
-            onSave && onSave(devices);
+              title: 'Success'
+            })
+            onSave && onSave(devices)
           }}
         >
           <SaveAll size={18} />
@@ -130,28 +132,32 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
         </Button>
       </div>
 
-      <MapContainer center={center} zoom={13} scrollWheelZoom={true} style={{ height: '75vh', width: '100%' }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+      <MapContainer
+        center={center}
+        zoom={13}
+        scrollWheelZoom={true}
+        style={{ height: '75vh', width: '100%' }}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SetViewOnClick coords={center} />
         <AreaSelector active={selectMode} setArea={setArea} />
         {devices.map((point, index) => (
-          <Marker key={index} position={point} draggable={true} eventHandlers={
-            {
+          <Marker
+            key={index}
+            position={point}
+            draggable={true}
+            eventHandlers={{
               dragend: (e) => {
-                const newDevices: ICoords[] = [...devices];
-                newDevices[index] = e.target.getLatLng();
-                setDevices(newDevices);
+                const newDevices: ICoords[] = [...devices]
+                newDevices[index] = e.target.getLatLng()
+                setDevices(newDevices)
               }
-            }
-
-          }
+            }}
             icon={
               new L.Icon({
                 iconUrl: iconB,
                 iconSize: [22, 22],
-                className: "text-red-800",
+                className: 'text-red-800'
               })
             }
           >
@@ -159,24 +165,22 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
           </Marker>
         ))}
         {area.map((point, index) => (
-          <Marker key={index} position={point} draggable={true} eventHandlers={
-            {
+          <Marker
+            key={index}
+            position={point}
+            draggable={true}
+            eventHandlers={{
               dragend: (e) => {
-                const newArea: ICoords[] = [...area];
-                newArea[index] = e.target.getLatLng();
-                setArea(newArea);
+                const newArea: ICoords[] = [...area]
+                newArea[index] = e.target.getLatLng()
+                setArea(newArea)
               }
-            }
-
-          }>
+            }}
+          >
             <Popup>Device {index + 1}</Popup>
           </Marker>
         ))}
-        {
-          area.length > 2 && (
-            <Polygon positions={orderCoordinates({ points: area })} />
-          )
-        }
+        {area.length > 2 && <Polygon positions={orderCoordinates({ points: area })} />}
         {/* <Marker position={currentPosition}>
                                     <Popup>You are here!</Popup>
                                 </Marker> */}
@@ -187,8 +191,8 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
         <Button
           className="px-4 py-2 bg-red-800 text-white font-semibold rounded hover:bg-red-900"
           onClick={() => {
-            setDevices([]);
-            onDelete && onDelete();
+            setDevices([])
+            onDelete && onDelete()
           }}
         >
           <Trash2 size={18} className="mr-2" />
@@ -203,5 +207,5 @@ export const MapLayout = ({setFullScreen, fullScreen, onSave, onDelete}: IMapLay
         </Button>
       </div>
     </>
-  );
-};
+  )
+}

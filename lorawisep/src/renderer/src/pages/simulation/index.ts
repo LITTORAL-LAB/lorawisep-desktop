@@ -1,5 +1,5 @@
-import {ParamsSimulatePage} from "./ParamsSimulatePage"
+import { ParamsSimulatePage } from './ParamsSimulatePage'
 
 export const Simulation = {
-    ParamsSimulatePage
+  ParamsSimulatePage
 }

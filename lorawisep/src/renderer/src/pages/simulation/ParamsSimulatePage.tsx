@@ -1,7 +1,5 @@
-import { MainLayout } from "@/components/layout"
+import { MainLayout } from '@/components/layout'
 
 export function ParamsSimulatePage() {
-  return (
-    <MainLayout/>
-  )
+  return <MainLayout />
 }

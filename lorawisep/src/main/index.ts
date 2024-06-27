@@ -1,7 +1,9 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+// import icon from '../../resources/icon.png?asset'
+const { exec } = require('child_process')
+const fs = require('fs')
 
 function createWindow(): void {
   // Create the browser window.
@@ -9,8 +11,8 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    // autoHideMenuBar: true,
+    // ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
@@ -35,12 +37,70 @@ function createWindow(): void {
   }
 }
 
+async function generateGraph(): Promise<boolean> {
+  const rootDir =
+    'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
+
+  exec(
+    `python ./src/main/scripts/graph_ed_positions.py ${rootDir} ${rootDir}\\output\\endevices.csv`,
+    async (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`)
+        return
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`)
+        return
+      }
+      console.log(`stdout: ${stdout}`)
+
+      // event.sender.send("graphDone");
+    }
+  )
+  return true
+}
+
+async function handleGenerateGraph(parameters): Promise<string> {
+  const { devices, width, heigth } = parameters
+
+  let b64 = ''
+  const rootDir =
+    'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
+
+  console.log(parameters)
+  console.log('devices: ', devices)
+
+  // event.reply('setParameters', 'ok')
+  await exec(
+    `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
+    async (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`)
+        return
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`)
+        return
+      }
+      console.log(`stdout: ${stdout}`)
+      await generateGraph()
+      b64 = await fs.readFileSync(`${rootDir}\\analysis\\ed_positions\\positions.png`, {
+        encoding: 'base64'
+      })
+      // event.reply('graphDone', 'ok')
+    }
+  )
+  console.log('b64: ', b64)
+  return b64
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
+  ipcMain.handle('generateGraph', handleGenerateGraph)
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -72,3 +132,29 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+// IPC test
+ipcMain.on('setParameters', (event, parameters) => {
+  const { devices, width, heigth } = parameters
+
+  console.log(parameters)
+  console.log('devices: ', devices)
+
+  event.reply('setParameters', 'ok')
+  exec(
+    `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.log(`error: ${error.message}`)
+        return
+      }
+      if (stderr) {
+        console.log(`stderr: ${stderr}`)
+        return
+      }
+      console.log(`stdout: ${stdout}`)
+      generateGraph()
+      event.reply('graphDone', 'ok')
+    }
+  )
+})

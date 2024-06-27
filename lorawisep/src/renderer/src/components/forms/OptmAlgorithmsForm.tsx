@@ -4,18 +4,17 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  FormMessage
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  SelectValue
+} from '@/components/ui/select'
 
 export function OptmAlgorithmsForm() {
-
   return (
     <>
       <FormField
@@ -35,7 +34,9 @@ export function OptmAlgorithmsForm() {
               </Select>
             </FormControl>
             <FormDescription>
-              Choose an algorithm to determine the optimal number of gateways based on statistical methods. The Elbow Method and Gap-Statistic are used to find the most efficient configuration.
+              Choose an algorithm to determine the optimal number of gateways based on statistical
+              methods. The Elbow Method and Gap-Statistic are used to find the most efficient
+              configuration.
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -60,7 +61,9 @@ export function OptmAlgorithmsForm() {
               </Select>
             </FormControl>
             <FormDescription>
-              Select an algorithm for optimal gateway positioning to ensure effective coverage and connectivity. Each method provides a different approach to solving the positioning problem.
+              Select an algorithm for optimal gateway positioning to ensure effective coverage and
+              connectivity. Each method provides a different approach to solving the positioning
+              problem.
             </FormDescription>
             <FormMessage />
           </FormItem>
