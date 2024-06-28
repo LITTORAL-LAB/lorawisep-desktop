@@ -1,17 +1,21 @@
 // MainLayout.tsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import icon from '@/assets/icon.png'
+import resultIcon from '../../../../main/scripts/img/devices.png'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import 'leaflet/dist/leaflet.css'
 import './style.css'
 import { ParamsConfig } from './ParamsConfig'
 import { MapLayout } from './Map'
 import { ICoords } from '@/types'
+import { ipcRenderer } from 'electron';
 
 export function MainLayout(): JSX.Element {
   const [fullScreen, setFullScreen] = useState(false)
   const [activeTab, setActiveTab] = useState('view')
   const [devices, setDevices] = useState<ICoords[]>()
+  const [result, setResult] = useState<boolean>(false)
+  const [gateways, setGateways] = useState<ICoords[]>()
 
   return (
     <div>
@@ -19,12 +23,12 @@ export function MainLayout(): JSX.Element {
         <div className={fullScreen ? 'w-full mx-10' : 'basis-2/3 ml-4'}>
           <Tabs defaultValue="view" onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="view">Gráficos</TabsTrigger>
-              <TabsTrigger value="map">Mapa</TabsTrigger>
+              <TabsTrigger value="view">Graphs</TabsTrigger>
+              <TabsTrigger value="map">Map</TabsTrigger>
             </TabsList>
             <TabsContent value="view">
               <div className="w-2/3">
-                <img src={icon} alt="placeholder" />
+                <img src={result? resultIcon: icon} alt="placeholder" />
               </div>
             </TabsContent>
             <TabsContent value="map">
@@ -37,6 +41,7 @@ export function MainLayout(): JSX.Element {
                 onDelete={() => {
                   setDevices([])
                 }}
+                gateways={gateways}
               />
             </TabsContent>
           </Tabs>
@@ -46,6 +51,7 @@ export function MainLayout(): JSX.Element {
             <ParamsConfig
               setAreaValues={activeTab == 'map' ? false : true}
               devices={devices ?? []}
+              onSimulate={() => {setResult(true)}}
             />
           </div>
         )}

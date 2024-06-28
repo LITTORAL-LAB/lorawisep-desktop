@@ -17,8 +17,9 @@ interface IMapLayoutProps {
   fullScreen: boolean
   onSave?: (devices: ICoords[]) => void
   onDelete?: () => void
+  gateways?: ICoords[]
 }
-export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete }: IMapLayoutProps) => {
+export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateways }: IMapLayoutProps) => {
   const [, setCurrentPosition] = useState<[number, number]>() // Coordenadas padrão
   const [center, setCenter] = useState<ICoords>({
     lat: -5.0589993793432955,
@@ -164,6 +165,31 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete }: IMapL
             <Popup>Device {index + 1}</Popup>
           </Marker>
         ))}
+        {
+          gateways?.map((point, index) => (
+            <Marker
+              key={index}
+              position={point}
+              draggable={true}
+              eventHandlers={{
+                dragend: (e) => {
+                  const newDevices: ICoords[] = [...devices]
+                  newDevices[index] = e.target.getLatLng()
+                  setDevices(newDevices)
+                }
+              }}
+              icon={
+                new L.Icon({
+                  iconUrl: iconB,
+                  iconSize: [22, 22],
+                  className: 'text-red-800'
+                })
+              }
+            >
+              <Popup>Gateway {index + 1}</Popup>
+            </Marker>
+          ))
+        }
         {area.map((point, index) => (
           <Marker
             key={index}

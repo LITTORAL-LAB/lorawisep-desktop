@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+// Custom APIs for renderer
+const api = {}
+
 interface SimulationParameters {
   name: string
   device: string
@@ -11,21 +14,16 @@ interface SimulationParameters {
   algorithmOptimization: string
 }
 
-// Custom APIs for renderer
-const api = {}
-
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', {
-      setParameters: (parameters: SimulationParameters) =>
-        ipcRenderer.send('setParameters', parameters),
-      // generateGraph: (parameters) => ipcRenderer.send('generateGraph', parameters),
-      handleResult: (callback) => ipcRenderer.on('graphDone', callback),
-      generateGraph: (parameters: SimulationParameters) =>
-        ipcRenderer.invoke('generateGraph', parameters)
+      setParameters: (parameters: SimulationParameters) => ipcRenderer.send('setParameters', parameters),
+      generateGraph: () => ipcRenderer.send('generateGraph'),
+      graphDone: (callback: () => void) => ipcRenderer.on('graphDone', callback),
+      loadDevices: () => ipcRenderer.send('loadDevices')
     })
     contextBridge.exposeInMainWorld('api', api)
   } catch (error) {

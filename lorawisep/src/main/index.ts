@@ -1,9 +1,12 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import  {saveDevicesToCSV}  from './scripts/utils'
 // import icon from '../../resources/icon.png?asset'
-const { exec } = require('child_process')
-const fs = require('fs')
+const { promisify } = require('util');
+const execAsync = promisify(require('child_process').exec);
+const fs = require('fs');
+const parse = require('csv-parse');
 
 function createWindow(): void {
   // Create the browser window.
@@ -37,62 +40,62 @@ function createWindow(): void {
   }
 }
 
-async function generateGraph(): Promise<boolean> {
-  const rootDir =
-    'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
+// async function generateGraph(): Promise<boolean> {
+//   const rootDir =
+//     'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
 
-  exec(
-    `python ./src/main/scripts/graph_ed_positions.py ${rootDir} ${rootDir}\\output\\endevices.csv`,
-    async (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`)
-        return
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`)
-        return
-      }
-      console.log(`stdout: ${stdout}`)
+//   exec(
+//     `python ./src/main/scripts/graph_ed_positions.py ${rootDir} ${rootDir}\\output\\endevices.csv`,
+//     async (error: { message: any }, stdout: any, stderr: any) => {
+//       if (error) {
+//         console.log(`error: ${error.message}`)
+//         return
+//       }
+//       if (stderr) {
+//         console.log(`stderr: ${stderr}`)
+//         return
+//       }
+//       console.log(`stdout: ${stdout}`)
 
-      // event.sender.send("graphDone");
-    }
-  )
-  return true
-}
+//       // event.sender.send("graphDone");
+//     }
+//   )
+//   return true
+// }
 
-async function handleGenerateGraph(parameters): Promise<string> {
-  const { devices, width, heigth } = parameters
+// async function handleGenerateGraph(parameters): Promise<string> {
+//   const { devices, width, heigth } = parameters
 
-  let b64 = ''
-  const rootDir =
-    'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
+//   let b64 = ''
+//   const rootDir =
+//     'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
 
-  console.log(parameters)
-  console.log('devices: ', devices)
+//   console.log(parameters)
+//   console.log('devices: ', devices)
 
-  // event.reply('setParameters', 'ok')
-  await exec(
-    `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
-    async (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`)
-        return
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`)
-        return
-      }
-      console.log(`stdout: ${stdout}`)
-      await generateGraph()
-      b64 = await fs.readFileSync(`${rootDir}\\analysis\\ed_positions\\positions.png`, {
-        encoding: 'base64'
-      })
-      // event.reply('graphDone', 'ok')
-    }
-  )
-  console.log('b64: ', b64)
-  return b64
-}
+//   // event.reply('setParameters', 'ok')
+//   await exec(
+//     `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
+//     async (error, stdout, stderr) => {
+//       if (error) {
+//         console.log(`error: ${error.message}`)
+//         return
+//       }
+//       if (stderr) {
+//         console.log(`stderr: ${stderr}`)
+//         return
+//       }
+//       console.log(`stdout: ${stdout}`)
+//       // await generateGraph()
+//       b64 = await fs.readFileSync(`${rootDir}\\analysis\\ed_positions\\positions.png`, {
+//         encoding: 'base64'
+//       })
+//       // event.reply('graphDone', 'ok')
+//     }
+//   )
+//   console.log('b64: ', b64)
+//   return b64
+// }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -100,7 +103,7 @@ async function handleGenerateGraph(parameters): Promise<string> {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-  ipcMain.handle('generateGraph', handleGenerateGraph)
+  // ipcMain.handle('generateGraph', handleGenerateGraph)
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -133,28 +136,76 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-// IPC test
-ipcMain.on('setParameters', (event, parameters) => {
-  const { devices, width, heigth } = parameters
+ipcMain.on('loadDevices', async (event) => {
+  const csvFilePath = "src/main/scripts/devices.csv";  // Certifique-se de que o caminho está correto
 
-  console.log(parameters)
-  console.log('devices: ', devices)
-
-  event.reply('setParameters', 'ok')
-  exec(
-    `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
-    (error, stdout, stderr) => {
-      if (error) {
-        console.log(`error: ${error.message}`)
-        return
-      }
-      if (stderr) {
-        console.log(`stderr: ${stderr}`)
-        return
-      }
-      console.log(`stdout: ${stdout}`)
-      generateGraph()
-      event.reply('graphDone', 'ok')
+  fs.readFile(csvFilePath, (err, fileContent) => {
+    if (err) {
+      console.error("Erro ao ler o arquivo CSV:", err);
+      event.reply('device-data-response', { error: "Falha ao carregar os dispositivos" });
+      return;
     }
-  )
-})
+
+    parse(fileContent, {
+      delimiter: ',',
+      columns: true,
+      trim: true
+    }, (err, records) => {
+      if (err) {
+        console.error("Erro ao parsear o arquivo CSV:", err);
+        event.reply('device-data-response', { error: "Falha ao parsear os dispositivos" });
+      } else {
+        console.log("Dispositivos carregados com sucesso:", records);
+        event.reply('device-data-response', { devices: records });
+      }
+    });
+  });
+});
+
+ipcMain.on('setParameters', async (event, parameters) => {
+  const { devices, gwPos } = parameters;
+
+  console.log(parameters);
+  console.log('opt: ', gwPos);
+  console.log('devices: ', devices);
+
+  event.reply('setParameters', 'ok');
+  const csvFilePath = await saveDevicesToCSV(devices);
+
+  try {
+    // Primeira execução: plotagem de dispositivos
+    console.log("Iniciando a plotagem dos dispositivos...");
+    const plotResult = await execAsync(`python3 src/main/scripts/positionDevicesGraph.py ${csvFilePath}`);
+    console.log(plotResult.stdout);
+    event.reply('graphDone', 'ok');
+
+    // Configuração dos gateways baseada em 'gwPos'
+    let cmd = '';
+    console.log("Antes de exec o python de otimização");
+
+    switch (gwPos) {
+      case 'kmeans':
+        cmd = `python3 src/main/scripts/kmeans.py ${csvFilePath}`;
+        break;
+      // Adicione mais casos conforme necessário
+      default:
+        console.log("No valid gwPos provided.");
+        break;
+    }
+
+    if (cmd) {
+      console.log("Iniciando a otimização de gateways...");
+      const optimizationResult = await execAsync(cmd);
+      console.log(optimizationResult.stdout);
+    }
+
+    // Execução final: cenário
+    console.log("Iniciando o script de cenário...");
+    const scenarioResult = await execAsync("python3 src/main/scripts/scenario.py");
+    console.log(scenarioResult.stdout);
+
+  } catch (error) {
+    console.error('Execução falhou:', error);
+    event.reply('error', error);
+  }
+});

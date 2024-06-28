@@ -25,6 +25,7 @@ import { ICoords } from '@/types'
 interface IParamsConfigProps {
   setAreaValues: boolean
   devices: ICoords[]
+  onSimulate: () => void
 }
 
 type FormValues = {
@@ -43,10 +44,9 @@ type FormValues = {
   map: boolean
 }
 
-export function ParamsConfig({ setAreaValues, devices }: IParamsConfigProps): JSX.Element {
+export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConfigProps): JSX.Element {
   const [openEnvConfig, setOpenEnvConfig] = useState(false)
   const [openResults, setOpenResults] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -76,7 +76,6 @@ export function ParamsConfig({ setAreaValues, devices }: IParamsConfigProps): JS
 
       devices.push({ lat: x, lng: y })
     }
-
     return devices
   }
 
@@ -98,7 +97,6 @@ export function ParamsConfig({ setAreaValues, devices }: IParamsConfigProps): JS
       methods.setValue('map', true)
 
       if (setAreaValues) {
-        setIsLoading(true)
         toast({
           title: 'Distribuindo dispositivos aleatoriamente...',
           description: 'Aguarde um momento.'
@@ -125,18 +123,20 @@ export function ParamsConfig({ setAreaValues, devices }: IParamsConfigProps): JS
           })
           return
         }
-        setIsLoading(false)
       }
-      if (!isLoading) {
-        setOpenResults(true)
-        // Limpar apenas os campos específicos
-        // methods.resetField('simName');
-        // methods.resetField('simEnv');
-        // methods.resetField('gwQuant');
-        // methods.resetField('gwPos');
-      }
+      setOpenResults(true)
+      // Limpar apenas os campos específicos
+      // methods.resetField('simName');
+      // methods.resetField('simEnv');
+      // methods.resetField('gwQuant');
+      // methods.resetField('gwPos');
+
     }
     console.log(methods.getValues())
+
+    window.electron.setParameters(methods.getValues())
+
+    onSimulate()
   }
 
   return (
