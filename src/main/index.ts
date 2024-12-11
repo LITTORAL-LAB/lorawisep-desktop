@@ -1,12 +1,12 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import  {saveDevicesToCSV}  from './scripts/utils'
+import { saveDevicesToCSV } from './scripts/utils'
 // import icon from '../../resources/icon.png?asset'
-const { promisify } = require('util');
-const execAsync = promisify(require('child_process').exec);
-const fs = require('fs');
-const parse = require('csv-parse');
+const { promisify } = require('util')
+const execAsync = promisify(require('child_process').exec)
+const fs = require('fs')
+const parse = require('csv-parse')
 
 function createWindow(): void {
   // Create the browser window.
@@ -137,75 +137,90 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 
 ipcMain.on('loadDevices', async (event) => {
-  const csvFilePath = "src/main/scripts/devices.csv";  // Certifique-se de que o caminho está correto
+  const csvFilePath = 'src/main/scripts/devices.csv'
 
   fs.readFile(csvFilePath, (err, fileContent) => {
     if (err) {
-      console.error("Erro ao ler o arquivo CSV:", err);
-      event.reply('device-data-response', { error: "Falha ao carregar os dispositivos" });
-      return;
+      console.error('Erro ao ler o arquivo CSV:', err)
+      event.reply('device-data-response', { error: 'Falha ao carregar os dispositivos' })
+      return
     }
 
-    parse(fileContent, {
-      delimiter: ',',
-      columns: true,
-      trim: true
-    }, (err, records) => {
-      if (err) {
-        console.error("Erro ao parsear o arquivo CSV:", err);
-        event.reply('device-data-response', { error: "Falha ao parsear os dispositivos" });
-      } else {
-        console.log("Dispositivos carregados com sucesso:", records);
-        event.reply('device-data-response', { devices: records });
+    parse(
+      fileContent,
+      {
+        delimiter: ',',
+        columns: true,
+        trim: true
+      },
+      (err, records) => {
+        if (err) {
+          console.error('Erro ao parsear o arquivo CSV:', err)
+          event.reply('device-data-response', { error: 'Falha ao parsear os dispositivos' })
+        } else {
+          console.log('Dispositivos carregados com sucesso:', records)
+          event.reply('device-data-response', { devices: records })
+        }
       }
-    });
-  });
-});
+    )
+  })
+})
 
 ipcMain.on('setParameters', async (event, parameters) => {
-  const { devices, gwPos } = parameters;
+  const { devices, gwPos } = parameters
 
-  console.log(parameters);
-  console.log('opt: ', gwPos);
-  console.log('devices: ', devices);
+  console.log(parameters)
+  console.log('opt: ', gwPos)
+  console.log('devices: ', devices)
 
-  event.reply('setParameters', 'ok');
-  const csvFilePath = await saveDevicesToCSV(devices);
+  event.reply('setParameters', 'ok')
+  const csvFilePath = await saveDevicesToCSV(devices)
 
   try {
+    let pythonPath = ''
+    if (process.platform === 'win32') {
+      pythonPath = path.join('.venv', 'Scripts', 'python.exe') // Caminho para Windows
+    } else {
+      pythonPath = path.join('.venv', 'bin', 'python3') // Caminho para Linux
+    }
+
+    // Validando se o executável do Python existe
+    const fs = require('fs')
+    if (!fs.existsSync(pythonPath)) {
+      console.error('Python não encontrado no caminho:', pythonPath)
+      return
+    }
+
     // Primeira execução: plotagem de dispositivos
-    console.log("Iniciando a plotagem dos dispositivos...");
-    const plotResult = await execAsync(`python3 src/main/scripts/positionDevicesGraph.py ${csvFilePath}`);
-    console.log(plotResult.stdout);
-    event.reply('graphDone', 'ok');
+    console.log('Iniciando a plotagem dos dispositivos...')
+    const plotResult = await execAsync(
+      `${pythonPath} src/main/scripts/positionDevicesGraph.py ${csvFilePath}`
+    )
+    console.log(plotResult.stdout)
+    event.reply('graphDone', 'ok')
 
-    // Configuração dos gateways baseada em 'gwPos'
-    let cmd = '';
-    console.log("Antes de exec o python de otimização");
+    // Configuração dos gateways baseada em 'gwPos'Ppy
+    let cmd = ''
+    console.log('Antes de exec o python de otimização')
 
-    switch (gwPos) {
-      case 'kmeans':
-        cmd = `python3 src/main/scripts/kmeans.py ${csvFilePath}`;
-        break;
-      // Adicione mais casos conforme necessário
-      default:
-        console.log("No valid gwPos provided.");
-        break;
+    if (gwPos === 'kmeans') {
+      cmd = `${pythonPath} src/main/scripts/kmeans.py ${csvFilePath}`
+    } else {
+      console.log('No valid gwPos provided.')
     }
 
     if (cmd) {
-      console.log("Iniciando a otimização de gateways...");
-      const optimizationResult = await execAsync(cmd);
-      console.log(optimizationResult.stdout);
+      console.log('Iniciando a otimização de gateways...')
+      const optimizationResult = await execAsync(cmd)
+      console.log(optimizationResult.stdout)
     }
 
     // Execução final: cenário
-    console.log("Iniciando o script de cenário...");
-    const scenarioResult = await execAsync("python3 src/main/scripts/scenario.py");
-    console.log(scenarioResult.stdout);
-
+    console.log('Iniciando o script de cenário...')
+    const scenarioResult = await execAsync(`${pythonPath} src/main/scripts/scenario.py`)
+    console.log(scenarioResult.stdout)
   } catch (error) {
-    console.error('Execução falhou:', error);
-    event.reply('error', error);
+    console.error('Execução falhou:', error)
+    event.reply('error', error)
   }
-});
+})

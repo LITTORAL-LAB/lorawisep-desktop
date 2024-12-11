@@ -1,7 +1,7 @@
 import csv
 import pandas as pd
-from yellowbrick.cluster import KElbowVisualizer
 from sklearn.cluster import KMeans
+from yellowbrick.cluster import KElbowVisualizer
 import sys
 import os
 
@@ -9,9 +9,9 @@ def read_coordinates_from_csv(file_path):
     data = pd.read_csv(file_path, skiprows=1, names=['lat', 'lng'])
     return pd.DataFrame(data, columns=['lat', 'lng'])
 
-def find_optimal_clusters(df, maxCluster):
+def find_optimal_clusters(df, max_cluster):
     kmeans = KMeans()
-    visualizer = KElbowVisualizer(kmeans, k=(1, maxCluster), timings=False)
+    visualizer = KElbowVisualizer(kmeans, k=(1, max_cluster), timings=False)
     visualizer.fit(df[['lat', 'lng']])
     return visualizer.elbow_value_
 

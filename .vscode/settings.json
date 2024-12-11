@@ -1,11 +1,23 @@
 {
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
   },
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit",
+      "source.unusedImports": "explicit"
+    }
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.addMissingImports": "always"
+  },
+  "editor.formatOnSave": true
 }

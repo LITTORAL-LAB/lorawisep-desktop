@@ -47,6 +47,10 @@ type FormValues = {
 export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConfigProps): JSX.Element {
   const [openEnvConfig, setOpenEnvConfig] = useState(false)
   const [openResults, setOpenResults] = useState(false)
+  let isDisabled = false;
+  if (!setAreaValues) {
+    isDisabled = devices.length <= 0;
+  }
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -156,14 +160,18 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
                   altura.
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        className="font-medium	 p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
+                      <button
+                        type="button"
+                        className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            setOpenEnvConfig(true)
+                          }
+                        }}
                       >
                         Open to Configure
-                      </div>
+                      </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
@@ -190,14 +198,13 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
                       {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        className="font-medium	 p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
+                      <button
+                        type="button"
+                        className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
                       >
                         Open to Configure
-                      </div>
+                      </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
@@ -224,14 +231,18 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
                       {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        className="font-medium	 p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
+                      <button
+                        type="button"
+                        className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            setOpenEnvConfig(true)
+                          }
+                        }}
                       >
                         Open to Configure
-                      </div>
+                      </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
@@ -259,14 +270,18 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
                     <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                       <SheetTrigger>
                         {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          className="font-medium	 p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
+                        <button
+                          type="button"
+                          className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                           onClick={() => setOpenEnvConfig(true)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              setOpenEnvConfig(true)
+                            }
+                          }}
                         >
                           Open to Configure
-                        </div>
+                        </button>
                       </SheetTrigger>
                       <SheetContent>
                         <SheetHeader>
@@ -290,7 +305,7 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
           <Button
             className="mt-10 w-full"
             type="submit"
-            disabled={setAreaValues ? false : devices.length <= 0 ? true : false}
+            disabled={isDisabled}
           >
             Simular
           </Button>
