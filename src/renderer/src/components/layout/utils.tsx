@@ -2,6 +2,22 @@ import { useMap, useMapEvents } from 'react-leaflet'
 import * as turf from '@turf/turf'
 import { ICoords } from '@/types'
 import { SetStateAction } from 'react'
+import { useTranslation } from 'react-i18next'
+
+export function LanguageSwitcher() {
+  const { i18n } = useTranslation()
+
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang)
+  }
+
+  return (
+    <div className="flex gap-4">
+      <button onClick={() => changeLanguage('en')}>English</button>
+      <button onClick={() => changeLanguage('pt')}>Português</button>
+    </div>
+  )
+}
 
 export function SetViewOnClick({ coords }: { coords: ICoords }) {
   const map = useMap()

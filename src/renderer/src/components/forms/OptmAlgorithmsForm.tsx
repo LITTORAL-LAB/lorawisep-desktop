@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   FormControl,
   FormDescription,
@@ -15,17 +16,19 @@ import {
 } from '@/components/ui/select'
 
 export function OptmAlgorithmsForm() {
+  const { t } = useTranslation()
+
   return (
     <>
       <FormField
         name="gwQuant"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Gateway Quantity Algorithm</FormLabel>
+            <FormLabel>{t('gatewayQuantityAlgorithm')}</FormLabel>
             <FormControl>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an algorithm" />
+                  <SelectValue placeholder={t('selectAlgorithm')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="elbow">Elbow Method</SelectItem>
@@ -33,11 +36,7 @@ export function OptmAlgorithmsForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormDescription>
-              Choose an algorithm to determine the optimal number of gateways based on statistical
-              methods. The Elbow Method and Gap-Statistic are used to find the most efficient
-              configuration.
-            </FormDescription>
+            <FormDescription>{t('gatewayQuantityAlgorithmDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -47,11 +46,11 @@ export function OptmAlgorithmsForm() {
         name="gwPos"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Gateway Positioning Algorithm</FormLabel>
+            <FormLabel>{t('gatewayPositioningAlgorithm')}</FormLabel>
             <FormControl>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an algorithm" />
+                  <SelectValue placeholder={t('selectAlgorithm')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="kmeans">K-Means Approach</SelectItem>
@@ -60,11 +59,7 @@ export function OptmAlgorithmsForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormDescription>
-              Select an algorithm for optimal gateway positioning to ensure effective coverage and
-              connectivity. Each method provides a different approach to solving the positioning
-              problem.
-            </FormDescription>
+            <FormDescription>{t('gatewayPositioningAlgorithmDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}

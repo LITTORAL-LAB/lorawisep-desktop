@@ -1,4 +1,3 @@
-// MainLayout.tsx
 import { useState, useEffect } from 'react'
 import iconB from '@/assets/iot_device-black.png'
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from 'react-leaflet'
@@ -11,6 +10,7 @@ import './style.css'
 import { SetViewOnClick, AreaSelector, orderCoordinates, addDevicesInArea } from './utils'
 import { ICoords } from '@/types'
 import { toast } from '../ui/use-toast'
+import { useTranslation } from 'react-i18next'
 
 interface IMapLayoutProps {
   setFullScreen: (fullScreen: boolean) => void
@@ -19,13 +19,19 @@ interface IMapLayoutProps {
   onDelete?: () => void
   gateways?: ICoords[]
 }
-export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateways }: IMapLayoutProps) => {
-  const [, setCurrentPosition] = useState<[number, number]>() // Coordenadas padrão
+export const MapLayout = ({
+  setFullScreen,
+  fullScreen,
+  onSave,
+  onDelete,
+  gateways
+}: IMapLayoutProps) => {
+  const { t } = useTranslation() // Hook para traduzir strings
+  const [currentPosition, setCurrentPosition] = useState<[number, number]>()
   const [center, setCenter] = useState<ICoords>({
     lat: -5.0589993793432955,
     lng: -42.80016879851992
   })
-  // {lat: -5.0589993793432955, lng: -42.80016879851992}
   const [locationInput, setLocationInput] = useState('')
   const [devices, setDevices] = useState<ICoords[]>([])
   const [selectMode, setSelectMode] = useState(false)
@@ -54,14 +60,14 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
     if (data[0]) {
       const newCenter = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
       setCenter(newCenter)
-      alert(newCenter.lat + ' ' + newCenter.lng)
+      alert(`${t('locationFound')} ${newCenter.lat}, ${newCenter.lng}`)
     } else {
-      alert('Location not found')
+      alert(t('locationNotFound'))
     }
   }
 
   const MapEffect = () => {
-    const map = useMap() // useMap agora está sendo chamado dentro de um componente filho de MapContainer
+    const map = useMap()
 
     useEffect(() => {
       if (fullScreen) {
@@ -69,7 +75,7 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
       }
     }, [fullScreen, map])
 
-    return null // Esse componente não renderiza nada visível
+    return null
   }
 
   return (
@@ -80,7 +86,7 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
           className="flex-1 p-2 border border-gray-300 rounded"
           value={locationInput}
           onChange={(e) => setLocationInput(e.target.value)}
-          placeholder="Search for locations"
+          placeholder={t('searchLocations')}
         />
         <Button
           className="px-4 py-2 bg-cyan-800 text-white font-semibold rounded hover:bg-cyan-700"
@@ -92,20 +98,20 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
           className="px-4 py-2 bg-cyan-800 text-white font-semibold rounded hover:bg-cyan-700"
           onClick={() => setSelectMode(!selectMode)}
         >
-          {selectMode ? 'Stop Selecting' : 'Select Area'}
+          {selectMode ? t('stopSelecting') : t('selectArea')}
         </Button>
         <Input
           type="number"
           className="flex-1 p-2 border border-gray-300 rounded"
           value={devicesCount}
           onChange={(e) => setDevicesCount(e.target.value)}
-          placeholder="Number of devices"
+          placeholder={t('numberOfDevices')}
         />
         <Button
           className="px-4 py-2 bg-cyan-800 text-white font-semibold rounded hover:bg-cyan-700"
           onClick={() => addDevicesInArea(area, setDevices, Number(devicesCount))}
         >
-          Add Devices
+          {t('addDevices')}
         </Button>
         <Button
           className="px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-900"
@@ -114,11 +120,11 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
               className: 'bg-green-700 text-white',
               description: (
                 <div className="">
-                  <p>Devices saved successfully</p>
-                  <p>{devices.length} devices saved</p>
+                  <p>{t('devicesSavedMessage')}</p>
+                  <p>{t('devicesSavedCount', { count: devices.length })}</p>
                 </div>
               ),
-              title: 'Success'
+              title: t('success')
             })
             onSave && onSave(devices)
           }}
@@ -162,34 +168,36 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
               })
             }
           >
-            <Popup>Device {index + 1}</Popup>
+            <Popup>
+              {t('device')} {index + 1}
+            </Popup>
           </Marker>
         ))}
-        {
-          gateways?.map((point, index) => (
-            <Marker
-              key={index}
-              position={point}
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => {
-                  const newDevices: ICoords[] = [...devices]
-                  newDevices[index] = e.target.getLatLng()
-                  setDevices(newDevices)
-                }
-              }}
-              icon={
-                new L.Icon({
-                  iconUrl: iconB,
-                  iconSize: [22, 22],
-                  className: 'text-red-800'
-                })
+        {gateways?.map((point, index) => (
+          <Marker
+            key={index}
+            position={point}
+            draggable={true}
+            eventHandlers={{
+              dragend: (e) => {
+                const newDevices: ICoords[] = [...devices]
+                newDevices[index] = e.target.getLatLng()
+                setDevices(newDevices)
               }
-            >
-              <Popup>Gateway {index + 1}</Popup>
-            </Marker>
-          ))
-        }
+            }}
+            icon={
+              new L.Icon({
+                iconUrl: iconB,
+                iconSize: [22, 22],
+                className: 'text-red-800'
+              })
+            }
+          >
+            <Popup>
+              {t('gateway')} {index + 1}
+            </Popup>
+          </Marker>
+        ))}
         {area.map((point, index) => (
           <Marker
             key={index}
@@ -203,13 +211,12 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
               }
             }}
           >
-            <Popup>Device {index + 1}</Popup>
+            <Popup>
+              {t('areaPoint')} {index + 1}
+            </Popup>
           </Marker>
         ))}
         {area.length > 2 && <Polygon positions={orderCoordinates({ points: area })} />}
-        {/* <Marker position={currentPosition}>
-                                    <Popup>You are here!</Popup>
-                                </Marker> */}
         {fullScreen && <MapEffect />}
       </MapContainer>
 
@@ -222,14 +229,14 @@ export const MapLayout = ({ setFullScreen, fullScreen, onSave, onDelete, gateway
           }}
         >
           <Trash2 size={18} className="mr-2" />
-          Devices
+          {t('deleteDevices')}
         </Button>
         <Button
           className="px-4 py-2 bg-red-800 text-white font-semibold rounded hover:bg-red-900 flex items-center"
           onClick={() => setArea([])}
         >
           <Trash2 size={18} className="mr-2" />
-          Area
+          {t('deleteArea')}
         </Button>
       </div>
     </>

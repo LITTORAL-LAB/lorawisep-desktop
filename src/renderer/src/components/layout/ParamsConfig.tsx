@@ -1,6 +1,4 @@
-// import { ProjectConfigForm } from "@/components/forms/ProjectConfigForm"
-import { Form } from '@/components/forms'
-// import { EnvironmentForm } from "@/components/modal/environmentForm"
+import { useState } from 'react'
 import {
   Accordion,
   AccordionContent,
@@ -16,11 +14,12 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { useState } from 'react'
 import { toast } from '../ui/use-toast'
 import { FormProvider, useForm } from 'react-hook-form'
 import { CodeViewer } from '../cards/ResultsCard'
 import { ICoords } from '@/types'
+import { useTranslation } from 'react-i18next'
+import { Form } from '@/components/forms'
 
 interface IParamsConfigProps {
   setAreaValues: boolean
@@ -44,17 +43,23 @@ type FormValues = {
   map: boolean
 }
 
-export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConfigProps): JSX.Element {
+export function ParamsConfig({
+  setAreaValues,
+  devices,
+  onSimulate
+}: IParamsConfigProps): JSX.Element {
+  const { t } = useTranslation()
   const [openEnvConfig, setOpenEnvConfig] = useState(false)
   const [openResults, setOpenResults] = useState(false)
-  let isDisabled = false;
+
+  let isDisabled = false
   if (!setAreaValues) {
-    isDisabled = devices.length <= 0;
+    isDisabled = devices.length <= 0
   }
 
   const methods = useForm<FormValues>({
     defaultValues: {
-      simName: 'testeSimulacao',
+      simName: t('defaultSimName') || 'SimulacaoTeste',
       simEnv: 'rural',
       simDescription: '',
       simTime: '3600',
@@ -74,7 +79,6 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
     const devices: ICoords[] = []
 
     for (let i = 0; i < n; i++) {
-      // Gera coordenadas aleatórias dentro dos limites especificados
       const x = Math.random() * width
       const y = Math.random() * height
 
@@ -86,15 +90,14 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
   const onSubmit = (values: FormValues): void => {
     if (!values.simName || !values.simEnv || !values.gwQuant || !values.gwPos) {
       toast({
-        title: 'O formulário não foi preenchido corretamente',
-        description:
-          'Preencha os campos obrigatórios (Nome da Simulação, Ambiente da Simulação e Algoritmos de Otimização)',
+        title: t('formErrorTitle'),
+        description: t('formErrorDescription'),
         variant: 'destructive'
       })
     } else {
       toast({
-        title: 'Formulário submetido',
-        description: 'Confira o console para os valores do formulário.'
+        title: t('formSubmitted'),
+        description: t('checkConsoleForDetails')
       })
 
       methods.setValue('devices', devices)
@@ -102,8 +105,8 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
 
       if (setAreaValues) {
         toast({
-          title: 'Distribuindo dispositivos aleatoriamente...',
-          description: 'Aguarde um momento.'
+          title: t('distributingDevices'),
+          description: t('pleaseWait')
         })
         if (values.simWidth && values.simHeight && values.devicesQt) {
           const devices = distributeDevicesRandomly(
@@ -113,72 +116,57 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
           )
           methods.setValue('devices', devices)
           methods.setValue('map', false)
-          // console.log(devices);
+
           toast({
-            title: 'Dispositivos distribuídos com sucesso!',
-            description: 'Confira o console para os valores dos dispositivos.'
+            title: t('devicesDistributed'),
+            description: t('checkConsoleForDevices')
           })
         } else {
           toast({
-            title: 'Erro ao distribuir dispositivos aleatoriamente.',
-            description:
-              'Verifique se os campos de largura, altura e quantidade de dispositivos estão preenchidos.',
+            title: t('deviceDistributionError'),
+            description: t('fillWidthHeightAndDeviceCount'),
             variant: 'destructive'
           })
           return
         }
       }
       setOpenResults(true)
-      // Limpar apenas os campos específicos
-      // methods.resetField('simName');
-      // methods.resetField('simEnv');
-      // methods.resetField('gwQuant');
-      // methods.resetField('gwPos');
 
+      console.log(methods.getValues())
+
+      window.electron.setParameters(methods.getValues())
+
+      onSimulate()
     }
-    console.log(methods.getValues())
-
-    window.electron.setParameters(methods.getValues())
-
-    onSimulate()
   }
 
   return (
     <div className="px-10">
       <CodeViewer open={openResults} setOpen={setOpenResults} />
-      <h2 className="text-3xl font-bold tracking-tight">Parâmetros da Simulação</h2>
-      <p className="text-lg text-gray-500">Configure os parâmetros da simulação.</p>
+      <h2 className="text-3xl font-bold tracking-tight">{t('simulationParamsTitle')}</h2>
+      <p className="text-lg text-gray-500">{t('simulationParamsDescription')}</p>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <Accordion type="single" collapsible className="mt-10 w-full">
             <AccordionItem value="item-1">
-              <AccordionTrigger>Project Configuration</AccordionTrigger>
+              <AccordionTrigger>{t('projectConfiguration')}</AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-rows-2 text-justify">
-                  Nesta aba você pode configurar o ambiente da simulação. Como o nome da simulação,
-                  a descrição, o tipo, o ambiente, a quantidade de dispositivos, a largura e a
-                  altura.
+                  {t('projectConfigurationDescription')}
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
                       <button
                         type="button"
                         className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            setOpenEnvConfig(true)
-                          }
-                        }}
                       >
-                        Open to Configure
+                        {t('openToConfigure')}
                       </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
-                        <SheetTitle> Project Configuration </SheetTitle>
-                        <SheetDescription>
-                          Here you can configure the project settings.
-                        </SheetDescription>
+                        <SheetTitle>{t('projectConfigTitle')}</SheetTitle>
+                        <SheetDescription>{t('projectConfigDescription')}</SheetDescription>
                       </SheetHeader>
                       <div className="mt-10">
                         <Form.ProjectConfigForm />
@@ -190,28 +178,24 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
             </AccordionItem>
 
             <AccordionItem value="item-2">
-              <AccordionTrigger>Configure os parâmetros</AccordionTrigger>
+              <AccordionTrigger>{t('simulationParams')}</AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-rows-2 text-justify">
-                  Nesta aba você pode configurar os parâmetros da simulação. Como a quantidade de
-                  pacotes por segundo, o tempo de simulação, modelo de propagação, etc.
+                  {t('simulationParamsDescription')}
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
-                      {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
                       <button
                         type="button"
                         className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
                       >
-                        Open to Configure
+                        {t('openToConfigure')}
                       </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
-                        <SheetTitle> Project Configuration </SheetTitle>
-                        <SheetDescription>
-                          Here you can configure the project settings.
-                        </SheetDescription>
+                        <SheetTitle>{t('simulationConfigTitle')}</SheetTitle>
+                        <SheetDescription>{t('simulationConfigDescription')}</SheetDescription>
                       </SheetHeader>
                       <div className="mt-10">
                         <Form.SimParamsForm />
@@ -223,33 +207,24 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
             </AccordionItem>
 
             <AccordionItem value="item-3">
-              <AccordionTrigger>Selecione os algoritmos de otimização</AccordionTrigger>
+              <AccordionTrigger>{t('optimizationAlgorithms')}</AccordionTrigger>
               <AccordionContent>
                 <div className="grid grid-rows-2 text-justify">
-                  Nesta aba você pode configurar os parâmetros da simulação. Como a quantidade de
-                  pacotes por segundo, o tempo de simulação, modelo de propagação, etc.
+                  {t('optimizationAlgorithmsDescription')}
                   <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                     <SheetTrigger>
-                      {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
                       <button
                         type="button"
                         className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                         onClick={() => setOpenEnvConfig(true)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            setOpenEnvConfig(true)
-                          }
-                        }}
                       >
-                        Open to Configure
+                        {t('openToConfigure')}
                       </button>
                     </SheetTrigger>
                     <SheetContent>
                       <SheetHeader>
-                        <SheetTitle> Project Configuration </SheetTitle>
-                        <SheetDescription>
-                          Here you can configure the project settings.
-                        </SheetDescription>
+                        <SheetTitle>{t('optimizationConfigTitle')}</SheetTitle>
+                        <SheetDescription>{t('optimizationConfigDescription')}</SheetDescription>
                       </SheetHeader>
                       <div className="mt-10">
                         <Form.OptmAlgorithmsForm />
@@ -262,33 +237,24 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
 
             {setAreaValues && (
               <AccordionItem value="item-4">
-                <AccordionTrigger>Set Area Values</AccordionTrigger>
+                <AccordionTrigger>{t('setAreaValues')}</AccordionTrigger>
                 <AccordionContent>
                   <div className="grid grid-rows-2 text-justify">
-                    Nesta aba você pode configurar os parâmetros da simulação. Como a quantidade de
-                    pacotes por segundo, o tempo de simulação, modelo de propagação, etc.
+                    {t('setAreaValuesDescription')}
                     <Sheet open={openEnvConfig} onOpenChange={setOpenEnvConfig}>
                       <SheetTrigger>
-                        {/* <Button variant={"default"} className="w-full bg-cyan-800">Open to Configure</Button> */}
                         <button
                           type="button"
                           className="font-medium p-2.5 rounded bg-cyan-800 hover:bg-cyan-950 w-full cursor-pointer text-white"
                           onClick={() => setOpenEnvConfig(true)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              setOpenEnvConfig(true)
-                            }
-                          }}
                         >
-                          Open to Configure
+                          {t('openToConfigure')}
                         </button>
                       </SheetTrigger>
                       <SheetContent>
                         <SheetHeader>
-                          <SheetTitle> Project Configuration </SheetTitle>
-                          <SheetDescription>
-                            Here you can configure the project settings.
-                          </SheetDescription>
+                          <SheetTitle>{t('areaConfigTitle')}</SheetTitle>
+                          <SheetDescription>{t('areaConfigDescription')}</SheetDescription>
                         </SheetHeader>
                         <div className="mt-10">
                           <Form.SetAreaParamsForm />
@@ -301,17 +267,12 @@ export function ParamsConfig({ setAreaValues, devices, onSimulate }: IParamsConf
             )}
           </Accordion>
 
-          {/* <Button className="mt-10 w-full" type="submit" disabled={(devices.length <= 0)}> */}
-          <Button
-            className="mt-10 w-full"
-            type="submit"
-            disabled={isDisabled}
-          >
-            Simular
+          <Button className="mt-10 w-full" type="submit" disabled={isDisabled}>
+            {t('simulate')}
           </Button>
 
           <Button className="mt-2 w-full" variant="outline">
-            Limpar
+            {t('clear')}
           </Button>
         </form>
       </FormProvider>

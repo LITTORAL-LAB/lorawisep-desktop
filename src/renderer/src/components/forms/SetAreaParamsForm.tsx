@@ -7,70 +7,65 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { useTranslation } from 'react-i18next'
 
 export function SetAreaParamsForm() {
+  const { t } = useTranslation()
+
   return (
     <>
       <FormField
-        name="simWidth" // Assuming the name relates to a width parameter in your simulation
+        name="simWidth"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Simulation Width</FormLabel>
+            <FormLabel>{t('simulationWidth')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
-                placeholder="Enter the width parameter in meters"
+                placeholder={t('simulationWidthPlaceholder')}
                 onChange={field.onChange}
                 defaultValue={field.value}
               />
             </FormControl>
-            <FormDescription>
-              Specify the width parameter for the simulation area in meters. This determines the
-              horizontal scale.
-            </FormDescription>
+            <FormDescription>{t('simulationWidthDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
 
       <FormField
-        name="simHeight" // Assuming the name relates to a height parameter in your simulation
+        name="simHeight"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Simulation Height</FormLabel>
+            <FormLabel>{t('simulationHeight')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
-                placeholder="Enter the height parameter in meters"
+                placeholder={t('simulationHeightPlaceholder')}
                 onChange={field.onChange}
                 defaultValue={field.value}
               />
             </FormControl>
-            <FormDescription>
-              Specify the height parameter for the simulation area or component in meters. This
-              determines the vertical scale.
-            </FormDescription>
+            <FormDescription>{t('simulationHeightDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
 
       <FormField
-        name="devicesQt" // Assuming the name relates to a height parameter in your simulation
+        name="devicesQt"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Devices Quant. </FormLabel>
+            <FormLabel>{t('devicesQuantity')}</FormLabel>
             <FormControl>
               <Input
                 type="number"
-                placeholder="Enter the devices quant."
+                placeholder={t('devicesQuantityPlaceholder')}
                 onChange={field.onChange}
                 defaultValue={field.value}
               />
             </FormControl>
-            <FormDescription>
-              Specify the number of devices to be used in the simulation.
-            </FormDescription>
+            <FormDescription>{t('devicesQuantityDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}

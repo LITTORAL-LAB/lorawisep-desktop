@@ -15,25 +15,26 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '../ui/textarea'
+import { useTranslation } from 'react-i18next'
 
 export function ProjectConfigForm() {
+  const { t } = useTranslation()
+
   return (
     <>
       <FormField
         name="simName"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Simulation Name</FormLabel>
+            <FormLabel>{t('simulationName')}</FormLabel>
             <FormControl>
               <Input
-                placeholder="Enter the simulation name"
+                placeholder={t('simulationNamePlaceholder')}
                 onChange={field.onChange}
                 defaultValue={field.value}
               />
             </FormControl>
-            <FormDescription>
-              Enter a unique name for your simulation to identify it easily in future references.
-            </FormDescription>
+            <FormDescription>{t('simulationNameDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -42,17 +43,15 @@ export function ProjectConfigForm() {
         name="simDescription"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Simulation Description</FormLabel>
+            <FormLabel>{t('simulationDescription')}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Write a brief description of the simulation"
+                placeholder={t('simulationDescriptionPlaceholder')}
                 onChange={field.onChange}
                 defaultValue={field.value}
               />
             </FormControl>
-            <FormDescription>
-              Provide a short description of what your simulation will analyze.
-            </FormDescription>
+            <FormDescription>{t('simulationDescriptionDetails')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -61,11 +60,11 @@ export function ProjectConfigForm() {
         name="simEnv"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Simulation Scenario</FormLabel>
+            <FormLabel>{t('simulationScenario')}</FormLabel>
             <FormControl>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select the scenario type to be simulated" />
+                  <SelectValue placeholder={t('simulationScenarioPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="urban">Urban</SelectItem>
@@ -73,9 +72,7 @@ export function ProjectConfigForm() {
                 </SelectContent>
               </Select>
             </FormControl>
-            <FormDescription>
-              Different settings can significantly affect results and model behavior.
-            </FormDescription>
+            <FormDescription>{t('simulationScenarioDescription')}</FormDescription>
             <FormMessage />
           </FormItem>
         )}
