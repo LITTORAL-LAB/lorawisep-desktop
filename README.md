@@ -1,6 +1,4 @@
-Aqui está uma sugestão para um **README** detalhado, explicativo e profissional para sua ferramenta:
 
----
 
 # **LoRaWAN Simulation Interface**
 
