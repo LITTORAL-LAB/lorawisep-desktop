@@ -79,5 +79,18 @@
   "numberOfPacketsDescription": "Especifique quantos pacotes devem ser enviados durante a simulação.",
   "propagationLossModel": "Modelo de Perda de Propagação",
   "propagationLossModelPlaceholder": "Selecione um modelo de perda de propagação",
-  "propagationLossModelDescription": "Escolha o modelo de perda de propagação adequado para sua simulação."
+  "propagationLossModelDescription": "Escolha o modelo de perda de propagação adequado para sua simulação.",
+  "simulationCompleteEventReceived": "Evento de simulação concluída recebido",
+  "simulationResultsTitle": "Resultados da Simulação",
+  "simulationResultsDescription": "Abaixo estão os resultados da sua simulação. Você pode copiar os dados, exportá-los como um arquivo CSV ou usá-los em sua aplicação.",
+  "averageDelay": "Atraso Médio (ms)",
+  "averageDistance": "Distância Média (m)",
+  "averageRSSI": "RSSI Médio (dBm)",
+  "averageSNR": "SNR Médio (dB)",
+  "parameter": "Parâmetro",
+  "value": "Valor",
+  "exportInstructions": "Você pode exportar os resultados para um arquivo ou copiar os dados acima para uso futuro.",
+  "exportResultsButton": "Exportar Resultados como CSV",
+  "simulationResultsFileName": "resultados_simulacao.csv",
+  "loadingMessage": "A simulação está em andamento. Por favor, aguarde..."
 }

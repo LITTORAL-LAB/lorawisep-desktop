@@ -2,11 +2,12 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { saveDevicesToCSV } from './scripts/utils'
+import Papa from 'papaparse'
+
 const { promisify } = require('util')
 const execAsync = promisify(require('child_process').exec)
 const fs = require('fs')
 const parse = require('csv-parse')
-
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -28,8 +29,6 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
@@ -37,66 +36,8 @@ function createWindow(): void {
   }
 }
 
-// async function generateGraph(): Promise<boolean> {
-//   const rootDir =
-//     'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
-
-//   exec(
-//     `python ./src/main/scripts/graph_ed_positions.py ${rootDir} ${rootDir}\\output\\endevices.csv`,
-//     async (error: { message: any }, stdout: any, stderr: any) => {
-//       if (error) {
-//         console.log(`error: ${error.message}`)
-//         return
-//       }
-//       if (stderr) {
-//         console.log(`stderr: ${stderr}`)
-//         return
-//       }
-//       console.log(`stdout: ${stdout}`)
-
-//       // event.sender.send("graphDone");
-//     }
-//   )
-//   return true
-// }
-
-// async function handleGenerateGraph(parameters): Promise<string> {
-//   const { devices, width, heigth } = parameters
-
-//   let b64 = ''
-//   const rootDir =
-//     'D:\\ufpi\\outros\\littoral\\projetos\\electron\\LoRaWISEP\\lorawisep\\src\\main\\'
-
-//   console.log(parameters)
-//   console.log('devices: ', devices)
-
-//   // event.reply('setParameters', 'ok')
-//   await exec(
-//     `python ./src/main/scripts/gen-pos.py ${devices} ${width} ${heigth}`,
-//     async (error, stdout, stderr) => {
-//       if (error) {
-//         console.log(`error: ${error.message}`)
-//         return
-//       }
-//       if (stderr) {
-//         console.log(`stderr: ${stderr}`)
-//         return
-//       }
-//       console.log(`stdout: ${stdout}`)
-//       // await generateGraph()
-//       b64 = await fs.readFileSync(`${rootDir}\\analysis\\ed_positions\\positions.png`, {
-//         encoding: 'base64'
-//       })
-//       // event.reply('graphDone', 'ok')
-//     }
-//   )
-//   console.log('b64: ', b64)
-//   return b64
-// }
-
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
-  // ipcMain.handle('generateGraph', handleGenerateGraph)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -117,14 +58,12 @@ app.on('window-all-closed', () => {
 
 ipcMain.on('loadDevices', async (event) => {
   const csvFilePath = 'src/main/scripts/devices.csv'
-
   fs.readFile(csvFilePath, (err, fileContent) => {
     if (err) {
       console.error('Erro ao ler o arquivo CSV:', err)
       event.reply('device-data-response', { error: 'Falha ao carregar os dispositivos' })
       return
     }
-
     parse(
       fileContent,
       {
@@ -143,6 +82,38 @@ ipcMain.on('loadDevices', async (event) => {
       }
     )
   })
+})
+
+const loadGatewaysFromCSV = () => {
+  const csvPath = path.join('src/main/scripts/gateways.csv')
+  console.log('csvPath: ', csvPath)
+
+  if (fs.existsSync(csvPath)) {
+    const fileContent = fs.readFileSync(csvPath, 'utf-8')
+    const parsedData = Papa.parse(fileContent, {
+      header: false, // O CSV não tem cabeçalho
+      skipEmptyLines: true // Ignora linhas vazias
+    })
+
+    // Transformar os dados no formato { lat, lng }
+    const gateways = parsedData.data.map((row) => {
+      const [lat, lng] = row // Divide a linha em latitude e longitude
+      return {
+        lat: parseFloat(lat), // Converte para número
+        lng: parseFloat(lng)
+      }
+    })
+
+    console.log('Gateways carregados:', gateways)
+    return gateways
+  } else {
+    console.warn('Arquivo gateways.csv não encontrado: ' + csvPath)
+    return []
+  }
+}
+
+ipcMain.handle('get-gateways', () => {
+  return loadGatewaysFromCSV()
 })
 
 ipcMain.on('setParameters', async (event, parameters) => {
@@ -192,14 +163,61 @@ ipcMain.on('setParameters', async (event, parameters) => {
       console.log('Iniciando a otimização de gateways...')
       const optimizationResult = await execAsync(cmd)
       console.log(optimizationResult.stdout)
+
+      // **Aqui os gateways são carregados após a otimização**
+      console.log('Carregando gateways otimizados...')
+      const gateways = loadGatewaysFromCSV()
+      console.log('Gateways otimizados carregados:', gateways)
+
+      // Opcional: enviar os gateways para o frontend
+      event.reply('gateways-updated', gateways)
     }
 
     // Execução final: cenário
     console.log('Iniciando o script de cenário...')
     const scenarioResult = await execAsync(`${pythonPath} src/main/scripts/scenario.py`)
     console.log(scenarioResult.stdout)
+
+    const ns3Path = import.meta.env.VITE_PATH_TO_NS3
+
+    if (!ns3Path) {
+      console.error('Caminho para o NS3 não encontrado. Configure a variável PATH_TO_NS3.')
+      event.reply('error', 'NS3 path not found in PATH_TO_NS3 environment variable')
+      return
+    }
+
+    const pathToRoot = import.meta.env.VITE_PATH_TO_ROOT
+    const outputFolder = path.resolve(pathToRoot, 'src/main/scripts/output')
+    const pathToEndDevicesFile = path.resolve(pathToRoot, 'src/main/scripts/devices.csv')
+    const pathToGatewaysFile = path.resolve(pathToRoot, 'src/main/scripts/gateways.csv')
+
+    try {
+      // const ns3Result = await execAsync(`./ns3 run scratch/scratch-simulator.cc`, { cwd: ns3Path })
+      const ns3Result = await execAsync(
+        `./ns3 run "scratch/scratch-simulator.cc --file_endevices=${pathToEndDevicesFile} --file_gateways=${pathToGatewaysFile} --out_folder=${outputFolder}"`,
+        { cwd: ns3Path }
+      )
+      console.log(ns3Result)
+      console.log(ns3Result.stdout)
+    } catch (error) {
+      console.error('Erro ao executar o NS-3:', error)
+      event.reply('error', error)
+    }
+
+    console.log('Iniciando o script de análise...')
+    const analysisResult = await execAsync(`${pythonPath} src/main/scripts/analyze_results.py`)
+
+    // Parseia os resultados do JSON retornado pelo script
+    const analysisData = JSON.parse(analysisResult.stdout)
+
+    console.log('Resultados da análise:', analysisData)
+
+    // Envia os resultados ao frontend
+    event.reply('simulation-complete', analysisData)
   } catch (error) {
     console.error('Execução falhou:', error)
     event.reply('error', error)
   }
+
+  event.reply('done', 'ok')
 })

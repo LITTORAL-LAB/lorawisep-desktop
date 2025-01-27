@@ -3,9 +3,9 @@ const { join } = require('path')
 
 // Função para converter os dispositivos em formato CSV
 export function devicesToCSV(devices) {
-  const headers = 'lat,lng'
+  // const headers = 'lat,lng'
   const rows = devices.map((device) => `${device.lat},${device.lng}`)
-  return [headers, ...rows].join('\n')
+  return [...rows].join('\n')
 }
 
 // Função para salvar os dispositivos em um arquivo CSV no diretório do projeto

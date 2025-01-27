@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import iconB from '@/assets/iot_device-black.png'
+import iconC from '@/assets/tower.png'
 import { MapContainer, Marker, Polygon, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Input } from '../ui/input'
@@ -27,7 +28,7 @@ export const MapLayout = ({
   gateways
 }: IMapLayoutProps) => {
   const { t } = useTranslation() // Hook para traduzir strings
-  const [currentPosition, setCurrentPosition] = useState<[number, number]>()
+  const [, setCurrentPosition] = useState<[number, number]>()
   const [center, setCenter] = useState<ICoords>({
     lat: -5.0589993793432955,
     lng: -42.80016879851992
@@ -187,8 +188,8 @@ export const MapLayout = ({
             }}
             icon={
               new L.Icon({
-                iconUrl: iconB,
-                iconSize: [22, 22],
+                iconUrl: iconC,
+                iconSize: [30, 30],
                 className: 'text-red-800'
               })
             }

@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import icon from '@/assets/icon.png'
-import resultIcon from '../../../../main/scripts/img/devices.png'
+import resultIcon from '../../../../main/scripts/img/complete-positions.png'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button' // Usando botão do shadcn
 import 'leaflet/dist/leaflet.css'
@@ -16,7 +16,43 @@ export function MainLayout(): JSX.Element {
   const [activeTab, setActiveTab] = useState('view')
   const [devices, setDevices] = useState<ICoords[]>()
   const [result, setResult] = useState<boolean>(false)
-  const [gateways] = useState<ICoords[]>()
+  const [gateways, setGateways] = useState<any[]>()
+  const [simulationResults, setSimulationResults] = useState<any>({
+    avg_delay: 0,
+    avg_dist: 0,
+    avg_rssi: 0,
+    avg_snr: 0
+  })
+
+  useEffect(() => {
+    const handleResult = (data: any) => {
+      console.log('Evento simulation-complete recebido:', data)
+      setSimulationResults(data) // Armazena os resultados no estado
+    }
+
+    window.electron.onSimulationComplete(handleResult)
+
+    return () => {
+      // Limpa o ouvinte para evitar vazamentos de memória
+      window.electron.onSimulationComplete(handleResult)
+    }
+  }, [result])
+
+  useEffect(() => {
+    async function fetchGateways() {
+      if (result) {
+        try {
+          const data = await window.electron.getGateways()
+          setGateways(data)
+          console.log('Gateways atualizados após simulação:', data)
+          setResult(false)
+        } catch (error) {
+          console.error('Erro ao carregar os gateways após a simulação:', error)
+        }
+      }
+    }
+    fetchGateways()
+  }, [result])
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang)
@@ -64,6 +100,7 @@ export function MainLayout(): JSX.Element {
                 }}
                 onDelete={() => {
                   setDevices([])
+                  setGateways([])
                 }}
                 gateways={gateways}
               />
@@ -77,11 +114,21 @@ export function MainLayout(): JSX.Element {
               devices={devices ?? []}
               onSimulate={() => {
                 setResult(true)
+                setTimeout(async () => {
+                  try {
+                    const data = await window.electron.getGateways()
+                    setGateways(data) // Atualiza os gateways com os novos dados
+                    console.log('Gateways atualizados após simulação:', data)
+                  } catch (error) {
+                    console.error('Erro ao carregar os gateways após a simulação:', error)
+                  }
+                }, 2000) // Ajuste o tempo de atraso conforme necessário
               }}
             />
           </div>
         )}
       </div>
+      <pre>{JSON.stringify(simulationResults, null, 2)}</pre>
     </div>
   )
 }

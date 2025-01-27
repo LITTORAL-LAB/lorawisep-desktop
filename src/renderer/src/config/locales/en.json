@@ -79,5 +79,18 @@
   "numberOfPacketsDescription": "Specify how many packets should be sent during the simulation.",
   "propagationLossModel": "Propagation Loss Model",
   "propagationLossModelPlaceholder": "Select a propagation loss model",
-  "propagationLossModelDescription": "Choose the propagation loss model suitable for your simulation."
+  "propagationLossModelDescription": "Choose the propagation loss model suitable for your simulation.",
+  "simulationCompleteEventReceived": "Simulation complete event received",
+  "simulationResultsTitle": "Simulation Results",
+  "simulationResultsDescription": "Below are the results of your simulation. You can copy the data, export it as a CSV file, or use it in your application.",
+  "averageDelay": "Average Delay (ms)",
+  "averageDistance": "Average Distance (m)",
+  "averageRSSI": "Average RSSI (dBm)",
+  "averageSNR": "Average SNR (dB)",
+  "parameter": "Parameter",
+  "value": "Value",
+  "exportInstructions": "You can export the results to a file or copy the data above for further use.",
+  "exportResultsButton": "Export Results as CSV",
+  "simulationResultsFileName": "simulation_results.csv",
+  "loadingMessage": "Simulation is running. Please wait..."
 }

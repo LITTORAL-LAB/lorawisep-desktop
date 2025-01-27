@@ -23,7 +23,7 @@ def perform_clustering(df, num_clusters):
 def save_gateways_to_csv(gateways, file_path):
     with open(file_path, mode='w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['lat', 'lng'])  # Adicionando o cabeçalho
+        # Não adiciona cabeçalho ao CSV
         for gateway in gateways:
             writer.writerow([gateway[0], gateway[1]])
 

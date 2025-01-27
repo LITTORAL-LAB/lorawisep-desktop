@@ -20,10 +20,14 @@ interface SimulationParameters {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', {
-      setParameters: (parameters: SimulationParameters) => ipcRenderer.send('setParameters', parameters),
+      setParameters: (parameters: SimulationParameters) =>
+        ipcRenderer.send('setParameters', parameters),
       generateGraph: () => ipcRenderer.send('generateGraph'),
       graphDone: (callback: () => void) => ipcRenderer.on('graphDone', callback),
-      loadDevices: () => ipcRenderer.send('loadDevices')
+      loadDevices: () => ipcRenderer.send('loadDevices'),
+      getGateways: () => ipcRenderer.invoke('get-gateways'),
+      onSimulationComplete: (callback: (data: any) => void) =>
+        ipcRenderer.on('simulation-complete', (_, data) => callback(data))
     })
     contextBridge.exposeInMainWorld('api', api)
   } catch (error) {

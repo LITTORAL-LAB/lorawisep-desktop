@@ -130,11 +130,12 @@ export function ParamsConfig({
           return
         }
       }
-      setOpenResults(true)
 
       console.log(methods.getValues())
 
       window.electron.setParameters(methods.getValues())
+
+      setOpenResults(true)
 
       onSimulate()
     }

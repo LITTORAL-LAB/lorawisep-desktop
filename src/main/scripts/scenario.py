@@ -13,13 +13,15 @@ marker_size = 30
 icon_zoom = 0.5
 
 def plot_gateway_positions(ed_file_path, gw_file_path):
-    ed_positions = pd.read_csv(ed_file_path)
-    gw_positions = pd.read_csv(gw_file_path)
+    # Especifica as colunas manualmente, pois os arquivos não têm cabeçalhos
+    ed_positions = pd.read_csv(ed_file_path, header=None, names=['lat', 'lng'])
+    gw_positions = pd.read_csv(gw_file_path, header=None, names=['lat', 'lng'])
+
     print(ed_positions)
     print(gw_positions)
 
     # Configuração do plot
-    fig, ax = plt.subplots(figsize=(8, 6))
+    _, ax = plt.subplots(figsize=(8, 6))
     ax.scatter(ed_positions['lat'], ed_positions['lng'], marker='o', alpha=0.3, color='#1f77b4', label='End Devices')
 
     # Usando Bbox para plotar a imagem como marcador
