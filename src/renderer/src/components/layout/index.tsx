@@ -128,7 +128,6 @@ export function MainLayout(): JSX.Element {
           </div>
         )}
       </div>
-      <pre>{JSON.stringify(simulationResults, null, 2)}</pre>
     </div>
   )
 }

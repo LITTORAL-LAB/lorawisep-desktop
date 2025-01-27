@@ -13,6 +13,29 @@
 
 ---
 
+## 🖼️ Exemplos da Interface
+
+### 1. **Mapa com Gateways e Dispositivos**
+Veja como os dispositivos e gateways são distribuídos no mapa após a configuração da simulação:
+
+![Mapa com Gateways e Dispositivos](https://github.com/LITTORAL-LAB/lorawisep-desktop/blob/main/public/map.png)
+
+---
+
+### 2. **Processamento da Simulação**
+Durante a execução da simulação, é exibido um estado de processamento:
+
+![Processamento da Simulação](https://github.com/LITTORAL-LAB/lorawisep-desktop/blob/main/public/processing_simulation.png)
+
+---
+
+### 3. **Resultados da Simulação**
+Os resultados são apresentados em um formato claro e visual, destacando métricas importantes:
+
+![Resultados da Simulação](https://github.com/LITTORAL-LAB/lorawisep-desktop/blob/main/public/results.png)
+
+---
+
 ## 🛠️ Configuração do Ambiente
 
 ### 1. Clonar o Repositório
@@ -104,7 +127,7 @@ npm run build
 **Referência BibTeX**:
 ```bibtex
 @inproceedings{sbesc_estendido,
- author = {Pedro F. Abreu and Luís H. Mendes and Geraldo Sarmento Neto and Thiago Silva and Artur F. Veloso and Erico Leão and José dos Reis Junior},
+ author = {Pedro F. Abreu and Luís H. Mendes and Geraldo Sarmento Neto and Thiago Silva and Artur F. Veloso and Erico Leão e José dos Reis Junior},
  title = { LoRaWISEP+: A Comprehensive Tool for Strategic Gateway Placement in LoRaWAN Networks},
  booktitle = {Anais Estendidos do XIV Simpósio Brasileiro de Engenharia de Sistemas Computacionais},
  location = {Recife/PE},

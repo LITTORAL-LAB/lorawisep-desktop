@@ -9,4 +9,3 @@ out
 src/main/scripts/output/*
 src/main/scripts/devices.csv
 src/main/scripts/gateways.csv
-src/main/scripts/img/*
