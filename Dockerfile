@@ -13,7 +13,9 @@ WORKDIR /opt/
 # Clona o ns-3-dev
 RUN git clone https://gitlab.com/nsnam/ns-3-dev.git && cd ns-3-dev \
     && git clone https://github.com/signetlabdei/lorawan src/lorawan \
-    && tag=$(< src/lorawan/NS3-VERSION) && tag=${tag#release } && git checkout $tag -b $tag
+    && tag=$(cat src/lorawan/NS3-VERSION | tr -d '\r') \
+    && tag=${tag#release } \
+    && git checkout "$tag" -b "$tag"
 
 # Configura e compila o ns-3 com o módulo LoRaWAN
 WORKDIR /opt/ns-3-dev
