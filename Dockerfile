@@ -38,10 +38,9 @@ RUN apt-get update && apt-get install -y python3 python3-venv python3-pip nodejs
 # Copia o código-fonte do LoRaWISEP
 COPY . /app
 
-# Cria e ativa ambiente virtual Python
+# Cria e ativa ambiente virtual Python corretamente
 RUN python3 -m venv .venv \
-    && source .venv/bin/activate \
-    && pip install --no-cache-dir -r requirements.txt
+    && /app/.venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Instala dependências do Electron
 RUN npm install
