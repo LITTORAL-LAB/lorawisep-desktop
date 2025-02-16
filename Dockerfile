@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y \
     curl wget build-essential clang \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala Node.js 18 e npm corretamente
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# Instala Node.js 20 e npm corretamente
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest
 
@@ -36,12 +36,12 @@ WORKDIR /app
 # Copia apenas o ns-3 compilado da etapa anterior
 COPY --from=builder /opt/ns-3-dev /opt/ns-3-dev
 
-# Instala dependências do projeto e Node.js
+# Instala dependências do projeto e Node.js 20
 RUN apt-get update && apt-get install -y python3 python3-venv python3-pip \
-    curl wget nodejs npm \
+    curl wget nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Atualiza o npm para evitar conflitos
+# Atualiza npm para a versão correta
 RUN npm install -g npm@latest
 
 # Copia o código-fonte do LoRaWISEP
