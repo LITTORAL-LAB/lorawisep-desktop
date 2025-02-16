@@ -7,6 +7,11 @@ RUN apt-get update && apt-get install -y \
     curl wget build-essential clang \
     && rm -rf /var/lib/apt/lists/*
 
+# Instala Node.js 18 e npm corretamente
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
 # Define o diretório de trabalho
 WORKDIR /opt/
 
@@ -31,9 +36,13 @@ WORKDIR /app
 # Copia apenas o ns-3 compilado da etapa anterior
 COPY --from=builder /opt/ns-3-dev /opt/ns-3-dev
 
-# Instala dependências do projeto
-RUN apt-get update && apt-get install -y python3 python3-venv python3-pip nodejs npm \
+# Instala dependências do projeto e Node.js
+RUN apt-get update && apt-get install -y python3 python3-venv python3-pip \
+    curl wget nodejs npm \
     && rm -rf /var/lib/apt/lists/*
+
+# Atualiza o npm para evitar conflitos
+RUN npm install -g npm@latest
 
 # Copia o código-fonte do LoRaWISEP
 COPY . /app
@@ -42,8 +51,8 @@ COPY . /app
 RUN python3 -m venv .venv \
     && /app/.venv/bin/pip install --no-cache-dir -r requirements.txt
 
-# Instala dependências do Electron
-RUN npm install
+# Instala dependências do Electron (com flag --legacy-peer-deps para evitar erros de compatibilidade)
+RUN npm install --legacy-peer-deps
 
 # Configura variáveis de ambiente
 ENV VITE_PATH_TO_NS3=/opt/ns-3-dev/
