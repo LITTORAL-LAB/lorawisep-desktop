@@ -50,7 +50,7 @@ struct coord
   double latitude, longitude, altitude;
 };
 
-/* End device struct for file [uptade] */
+/* End device struct for file [update] */
 struct EndDevice
 {
   float coordX;
