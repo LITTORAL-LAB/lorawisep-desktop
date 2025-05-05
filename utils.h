@@ -32,7 +32,6 @@
 #include "ns3/building-penetration-loss.h"
 #include "ns3/building-allocator.h"
 #include "ns3/buildings-helper.h"
-#include "ns3/forwarder-helper.h"
 // for geo
 #include "ns3/geographic-positions.h"
 
