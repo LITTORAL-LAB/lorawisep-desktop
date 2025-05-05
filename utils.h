@@ -279,7 +279,6 @@ getStatus (ns3::NodeContainer endDevices, ns3::NodeContainer gateways, ns3::Ptr<
              << "dr," << "rssi," << "dist," << "delay," << "snr" << std::endl;
   for (NodeContainer::Iterator j = endDevices.Begin (); j != endDevices.End (); ++j, counter++)
     {
-      std::ifstream file_gw (file);
       Ptr<Node> object = *j;
       Ptr<MobilityModel> position = object->GetObject<MobilityModel> ();
 
